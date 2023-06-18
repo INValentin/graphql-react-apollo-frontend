@@ -124,8 +124,3 @@ export const GET_TODOS = gql`
     }
   }
 `;
-
-client
-  .query({ query: GET_TODOS })
-  .then((res) => console.log(res))
-  .catch((err) => console.error(err));

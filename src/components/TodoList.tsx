@@ -8,12 +8,18 @@ import {
 } from 'react-beautiful-dnd';
 import { User } from '../App';
 import { useMutation, useQuery } from '@apollo/client';
-import { CREATE_TODO, GET_USER_TODOS, UPDATE_TODO } from '../apollo';
+import {
+  CREATE_TODO,
+  DELETE_TODO,
+  GET_USER_TODOS,
+  UPDATE_TODO,
+} from '../apollo';
 
 export type Todo = {
   owner: string;
   text: string;
   id: number;
+  createdAt: Date;
   completed: boolean;
 };
 
@@ -39,6 +45,8 @@ const TodoList = ({
         data: { userId: user.id, text: todoText, completed: false },
       },
     });
+
+  const [deleteTodo, { loading: deleting }] = useMutation(DELETE_TODO);
 
   const [updateTodo, { loading: updating }] = useMutation(UPDATE_TODO, {
     variables: {
@@ -78,6 +86,12 @@ const TodoList = ({
     }
   };
 
+  const handleDeleteTodo = async (todoId: number) => {
+    await deleteTodo({
+      variables: { deleteTodoId: todoId, id: todoId, userId: user.id },
+    });
+  };
+
   const toggleTodo = (id: number) => {
     setTodo(todos.find((t) => t.id === id));
     updateTodo().then(() => refetch());
@@ -90,6 +104,13 @@ const TodoList = ({
     newTodos.splice(result.destination.index, 0, src[0]);
 
     setTodos(newTodos);
+  };
+
+  const handleClearCompleted = async () => {
+    await Promise.all(
+      todos.filter((t) => t.completed).map((t) => handleDeleteTodo(t.id))
+    );
+    await refetch();
   };
 
   return (
@@ -128,7 +149,7 @@ const TodoList = ({
             >
               <div className="flex flex-col my-5 rounded-md dark:bg-[#181824] bg-gray-300 overflow-hidden shadow-lg w-full ">
                 <div className="h-8 flex gap-2 w-full">
-                  {loading || updating ? (
+                  {loading || updating || deleting ? (
                     <span className="w-4 h-4 m-2 rounded-full border-dotted border-[3px] border-b-0 border-l-0 animate-spin" />
                   ) : (
                     <span className="text-sm p-2 text-gray-500 dark:text-gray-400">
@@ -158,7 +179,7 @@ const TodoList = ({
                       draggableId={`${todo.id}`}
                     >
                       {(provided, snap) => (
-                        <div
+                        <label
                           style={snap.isDragging ? { top: '30px' } : {}}
                           {...provided.draggableProps}
                           {...provided.dragHandleProps}
@@ -166,13 +187,10 @@ const TodoList = ({
                           id={`${todo.id}`}
                           onClick={() => toggleTodo(todo.id)}
                           className="flex items-center gap-3 border-b p-2 pr-4 dark:border-b-gray-500 bg-white dark:bg-[#24273d] dark:text-white"
+                          htmlFor={`check-x-${todo.id}`}
                         >
-                          <label
-                            htmlFor={`check-x-${todo.id}`}
-                            className="check-label"
-                          >
+                          <div className="check-label">
                             <input
-                              // defaultChecked={todo.completed}
                               checked={todo.completed}
                               onChange={() => toggleTodo(todo.id)}
                               id={`check-x-${todo.id}`}
@@ -181,17 +199,25 @@ const TodoList = ({
                             <span className="border border-gray-300 inline-block rounded-full h-5 w-5 ">
                               <img src={check} alt="Check" />
                             </span>
-                          </label>
+                          </div>
                           <p
-                            className={`text-gray-700/80 dark:text-gray-100 ${
+                            className={`text-gray-700/80 break-words break-keep max-w-full relative w-full flex-1 flex justify-between items-center gap-2 dark:text-gray-100 ${
                               todo.completed
                                 ? ' line-through text-gray-700/60 dark:text-gray-300/70 '
                                 : ''
                             }`}
                           >
                             {todo.text}
+                            <span className="text-xs absolute -right-2 -bottom-3 ">
+                              {new Date(
+                                Number(todo.createdAt)
+                              ).toLocaleDateString('en-rw')}{' '}
+                              {new Date(
+                                Number(todo.createdAt)
+                              ).toLocaleTimeString('en-rw')}
+                            </span>
                           </p>
-                        </div>
+                        </label>
                       )}
                     </Draggable>
                   ))}
@@ -233,9 +259,7 @@ const TodoList = ({
                     </button>
                   </div>
                   <button
-                    onClick={() =>
-                      setTodos((td) => td.filter((t) => !t.completed))
-                    }
+                    onClick={handleClearCompleted}
                     className="text-gray-500 hover:text-gray-800 text-sm dark:text-gray-400 dark:hover:text-gray-100"
                   >
                     Clear Completed

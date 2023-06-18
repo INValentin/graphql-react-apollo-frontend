@@ -32,7 +32,7 @@ const TodoHeader = ({
   };
 
   return (
-    <div className="flex mb-4 items-center justify-between gap-2">
+    <div className="flex mb-4 items-center flex-col md:flex-row gap-5 justify-between md:gap-5">
       <span
         style={{
           letterSpacing: '10px',
@@ -51,7 +51,7 @@ const TodoHeader = ({
             alt="Dark mode"
           />
         </button>
-        <span className="h-5 border-l-2 border-gray-900"></span>
+        <span className="h-5 border-0 ml-2 border-r-2 border-white"></span>
         <span className="text-white font-bold mx-1 p-1">{user?.name}</span>
         <button
           onClick={onLogout}
