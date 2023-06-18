@@ -1,0 +1,41 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  font-family: 'Jost', sans-serif;
+  min-height: 100vh;
+}
+
+body,
+#root {
+  min-height: 100vh;
+}
+
+@layer base {
+  body {
+    @apply dark:bg-[#181824];
+  }
+}
+@layer components {
+  .check-label {
+    @apply flex justify-center items-center p-2;
+  }
+  .check-label > input[type='checkbox'] {
+    @apply hidden;
+  }
+  .check-label > span {
+    @apply flex justify-center items-center;
+  }
+
+  .check-label > span img {
+    @apply hidden;
+  }
+
+  .check-label > input[type='checkbox']:checked + span {
+    @apply bg-gradient-to-br from-blue-400 to-purple-500;
+  }
+  .check-label > input[type='checkbox']:checked + span img {
+    @apply inline-block;
+  }
+}
