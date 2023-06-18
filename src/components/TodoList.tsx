@@ -19,7 +19,14 @@ export type Todo = {
 
 const todoItems: Todo[] = [];
 
-const TodoList = ({ initTodos, user }: { initTodos?: Todo[]; user: User }) => {
+const TodoList = ({
+  initTodos,
+  user,
+}: {
+  initTodos?: Todo[];
+  user: User;
+  isDark: boolean;
+}) => {
   const [todos, setTodos] = useState(initTodos ?? todoItems);
   const [active, setActive] = useState<0 | 1 | 2>(0);
   const [todoText, setTodoText] = useState('');
@@ -32,6 +39,7 @@ const TodoList = ({ initTodos, user }: { initTodos?: Todo[]; user: User }) => {
         data: { userId: user.id, text: todoText, completed: false },
       },
     });
+
   const [updateTodo, { loading: updating }] = useMutation(UPDATE_TODO, {
     variables: {
       updateTodoId: todo?.id,
@@ -127,7 +135,11 @@ const TodoList = ({ initTodos, user }: { initTodos?: Todo[]; user: User }) => {
                       {todos.length} todo(s)
                     </span>
                   )}
-                  <span className='text-sm p-2 text-gray-500 cursor-pointer dark:text-gray-400 hover:text-white' tabIndex={0} onClick={() => refetch()}>
+                  <span
+                    className="text-sm p-2 text-gray-500 cursor-pointer dark:text-gray-400 hover:text-white"
+                    tabIndex={0}
+                    onClick={() => refetch()}
+                  >
                     Refresh
                   </span>
                 </div>

@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react';
 import { CREATE_USER, LOGIN_USER_AND_GET_TODOS, client } from './apollo';
 import dBgLight from './assets/bg-desktop-light.jpg';
+import dBgDark from './assets/bg-desktop-dark.jpg';
+import mBgDark from './assets/bg-mobile-dark.jpg';
+import mBgLight from './assets/bg-mobile-light.jpg';
 import TodoHeader from './components/TodoHeader';
 import TodoInput from './components/TodoInput';
 import TodoList from './components/TodoList';
@@ -15,6 +18,7 @@ export type User = {
 
 function App() {
   const [user, setUser] = useState<User | null>(null);
+  const [isDark, setIsDark] = useState(false);
 
   useEffect(() => {
     const savedUser = JSON.parse(localStorage.getItem('user') ?? 'null');
@@ -41,20 +45,33 @@ function App() {
     setUser(null);
   };
 
+  const handleModeChange = (isDark: boolean) => {
+    setIsDark(isDark);
+  };
+
   return (
     <ApolloProvider client={client}>
       {!user && <Auth onLogin={onLogin} />}
       <div className="w-full dark:bg-[#181824] flex relative flex-col min-h-screen">
         <img
-          className="flex-1 lg:flex-[0] md:h-72"
-          src={dBgLight}
+          className="flex-1 hidden lg:flex-[0] md:h-72"
+          src={isDark ? dBgDark : dBgLight}
+          alt="Background"
+        />
+        <img
+          className="flex-1 md:hidden lg:flex-[0] md:h-72"
+          src={isDark ? mBgDark : mBgLight}
           alt="Background"
         />
         <div className="absolute w-full  flex-col p-3 top-[2.5rem] md:top-[5rem] left-1/2 -translate-x-1/2 max-w-lg">
-          <TodoHeader user={user as User} onLogout={onLogout} />
+          <TodoHeader
+            onModeChange={handleModeChange}
+            user={user as User}
+            onLogout={onLogout}
+          />
           <TodoInput />
 
-          {user && <TodoList user={user as User} />}
+          {user && <TodoList isDark={isDark} user={user as User} />}
         </div>
         <div className="flex-[5] h-full dark:bg-[#181824]"></div>
       </div>
