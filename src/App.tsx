@@ -54,7 +54,7 @@ function App() {
       {!user && <Auth onLogin={onLogin} />}
       <div className="w-full dark:bg-[#181824] flex relative flex-col min-h-screen">
         <img
-          className="flex-1 hidden lg:flex-[0] md:h-72"
+          className="flex-1 hidden md:inline-block lg:flex-[0] md:h-72"
           src={isDark ? dBgDark : dBgLight}
           alt="Background"
         />
