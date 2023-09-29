@@ -1,10 +1,7 @@
 import { gql, ApolloClient, InMemoryCache } from '@apollo/client';
 
 export const client = new ApolloClient({
-  uri:
-    location.protocol !== 'https'
-      ? 'http://localhost:3001'
-      : 'https://grapql-todo-001.onrender.com',
+  uri:'https://grapql-todo-001.onrender.com',
   cache: new InMemoryCache(),
 });
 
